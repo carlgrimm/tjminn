@@ -1,9 +1,9 @@
 const axios = require('axios')
 
-async function postOrderReady (channel, ts, image64URL) {
+async function postOrderReady (channel, ts, team, appHome) {
   await axios.post('https://slack.com/api/chat.update',
     {
-      channel: 'D03NEEH7N0G',
+      channel,
       ts,
       blocks: [
         {
@@ -11,7 +11,7 @@ async function postOrderReady (channel, ts, image64URL) {
           elements: [
             {
               type: 'mrkdwn',
-              text: ':white_check_mark: Your Order is Ready! <slack://app?team=T03MJJULH8S&id=A03MJJP38V9&tab=home|*Click Here*>'
+              text: `:white_check_mark: Your Order is Ready! <slack://app?team=${team}&id=${appHome}&tab=home|*Click Here*>`
             }
           ]
         }
@@ -21,7 +21,7 @@ async function postOrderReady (channel, ts, image64URL) {
     {
       headers: {
         Authorization: `Bearer ${process.env.BOT_TOKEN}`,
-        'Content-Type': 'application/json; charset=utf-8' // if you don't set the charset and use metadata it will reject your message
+        'Content-Type': 'application/json; charset=utf-8' // if you don't set the charset it will reject your message
       }
     }
   )
