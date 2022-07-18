@@ -11,6 +11,7 @@ async function promptUser (id, ts, channel, products) {
       {
         channel,
         thread_ts: ts,
+        text: 'We need some help!',
         blocks,
         metadata: {
           event_type: 'disambiguateProduct',
