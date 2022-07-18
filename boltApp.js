@@ -20,7 +20,7 @@ app.event('app_home_opened', async ({ event, client, logger }) => {
 // Process the user selecting which is the intended product
 app.action('disambiguateProduct', async ({ body, payload, action, ack, context, client, logger }) => {
   await ack()
-  appEmitter.emit('updateOrderProduct', { id: body.user.id, payload: body.message.metadata.event_payload.id, thread: body.container.thread_ts, message: body.container.message_ts, value: payload.selected_option.value, channel: body.container.channel_id })
+  appEmitter.emit('updateOrderProduct', { user: body.user.id, payload: body.message.metadata.event_payload.id, thread: body.container.thread_ts, message: body.container.message_ts, value: payload.selected_option.value, channel: body.container.channel_id })
 })
 
 // Process the select of the order type
@@ -50,18 +50,22 @@ app.action('order_submit', async ({ body, payload, action, ack, context, client,
 // examine each incoming message to the app and see if a file is attached
 app.event('message', async ({ event, say, respond, body, client, logger }) => {
   // check if a file is attached to the message
-  if (event.files) {
+  if (event.subtype === 'file_share') {
     // create an order for every image submitted
 
     for (let i = 0; i < event.files.length; i++) {
-      appEmitter.emit('createOrder', { user: event.user, ts: event.ts, file: event.files[i], channel: event.channel })
+      appEmitter.emit('createOrder', { user: event.user, ts: event.ts, file: event.files[i], team: body.team_id, channel: event.channel, appID: body.api_app_id })
 
       // respond to the thread and let the user know we have started processing things
       await say({ text: 'We are working on this!', thread_ts: event.ts })
     }
   } else {
-    // no barcode was found so we let the user know
-    await say({ text: 'No barcode image attached!', thread_ts: event.ts })
+    // we have a message without a file share
+    if (event.subtype === 'message_changed') {
+      // do nothing
+    } else {
+      await say({ text: 'No barcode image attached!', thread_ts: event.ts })
+    }
   }
 })
 

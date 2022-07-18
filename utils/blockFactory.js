@@ -1,5 +1,6 @@
+// function creates the slection block when multiple products are found
 function formatMultipleProductBlocks (id, products) {
-  // console.log('INCOMING PRODUCTS FOR BLOCK')
+  // define the message block we will populate with options
   const messageBlock = [
     {
       type: 'section',
@@ -21,9 +22,7 @@ function formatMultipleProductBlocks (id, products) {
   ]
 
   for (let i = 0; i < products.length; i++) {
-    // console.log('ITERATION', i)
     const safeTitle = products[i].title.replace(/("|“|”)/g, '\\"')
-    // console.log('SAFE TITLE:', safeTitle)
     const option = `{
               "text": {
                 "type": "plain_text",
@@ -31,7 +30,6 @@ function formatMultipleProductBlocks (id, products) {
               },
               "value": "${products[i].barcode_number}"
             }`
-    // Dconsole.log('about to parse')
 
     try {
       const parsed = JSON.parse(option)
@@ -44,9 +42,10 @@ function formatMultipleProductBlocks (id, products) {
   return messageBlock
 }
 
+// function creates the home view
+// Home tabs must be enabled in your app configuration page under 'App Home'
 function createHomeView (orders) {
   const view = {
-    // Home tabs must be enabled in your app configuration page under 'App Home'
     type: 'home',
     blocks: [
       {
@@ -62,7 +61,6 @@ function createHomeView (orders) {
       }
     ]
   }
-  // console.log('Creating Order View List', orders)
   for (let i = 0; i < orders.length; i++) {
     const template = `[{
               "type": "header",

@@ -7,7 +7,7 @@ async function lookupProduct (cache, barcode) {
   // if no result in cache we call the API
   if (cacheHit === null) {
     try {
-      const response = await axios.get(`https://api.barcodelookup.com/v3/products?barcode=${barcode}&formatted=y&key=vioktrfap55cf3ef0z7bleyzi12eaa`)
+      const response = await axios.get(`https://api.barcodelookup.com/v3/products?barcode=${barcode}&formatted=y&key=${process.env.BARCODE_KEY}`)
 
       // store the product results in the cache
       cache.insertOne({
