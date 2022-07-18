@@ -1,0 +1,25 @@
+{
+  "name": "slacksocket",
+  "version": "1.0.0",
+  "description": "Slack Socket Test App",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Carl Grimm",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@slack/bolt": "^3.11.3",
+    "axios": "^0.27.2",
+    "barcode-js": "^13.8.3085",
+    "lokijs": "^1.5.12"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.1",
+    "eslint": "^8.19.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.4",
+    "eslint-plugin-promise": "^6.0.0"
+  }
+}
