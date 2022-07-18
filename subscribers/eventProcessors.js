@@ -8,7 +8,7 @@ const updateHomeView = require('../utils/updateHomeView')
 const getFileBuffer = require('../utils/getFileBuffer')
 
 // function for loading event handlers and database collection dependancy injection
-function bindEvents(orders, cache, view) {
+function bindEvents (orders, cache, view) {
   // handle emitter errors from appEmitter
   appEmitter.on('error', function (err) {
     console.error(err)
@@ -102,15 +102,11 @@ function bindEvents(orders, cache, view) {
       appEmitter.emit('promptUser', { user, id, ts, products, channel })
     } else if (products.length === 1) {
       // we have a single product and we can update the record
-      try {
-        const order = orders.findOne({ order: id })
-        order.title = products[0].title
-        order.image = products[0].images[0]
-        order.update()
-        appEmitter.emit('orderReady', { user, id, ts, products, channel })
-      } catch (err) {
-        console.error(err)
-      }
+      const order = orders.findOne({ order: id })
+      order.title = products[0].title
+      order.image = products[0].images[0]
+      order.update()
+      appEmitter.emit('orderReady', { user, id, ts, products, channel })
     } else {
       // we have no products and something likely went wrong
       console.error('error no products returned')
@@ -139,40 +135,36 @@ function bindEvents(orders, cache, view) {
   appEmitter.on('updateOrderProduct', function (data) {
     const { user, payload, value, channel } = data
 
-    // locate order and product info from db
+    // locate order and product info from cache
+    const order = orders.findOne({ order: payload })
+    const record = cache.findOne({ barcode: order.upc })
+
+    // set order status to ready
+    order.status = 'ready'
+
+    // iterate through the cached products until we find our match selected by the user
+
+    for (let i = 0; i < record.products.length; i++) {
+      if (record.products[i].barcode_number === value) {
+        order.title = record.products[i].title
+        order.image = record.products[i].images[0]
+        order.upc = value
+        break // exit on match
+      }
+    }
+
+    // update the order with the product match
     try {
-      const order = orders.findOne({ order: payload })
-      const record = cache.findOne({ barcode: order.upc })
-      // set order status to ready
-      order.status = 'ready'
-
-      // iterate through the cached products until we find our match selected by the user
-
-      for (let i = 0; i < record.products.length; i++) {
-        if (record.products[i].barcode_number === value) {
-          order.title = record.products[i].title
-          order.image = record.products[i].images[0]
-          order.upc = value
-          break // exit on match
-        }
-      }
-
-      // update the order with the product match
-      try {
-        orders.update(order)
-        // notify user order is ready
-        appEmitter.emit('orderReady', { user, ts: order.disambiguateTS, barcode: value, channel, team: order.team, appID: order.appID })
-
-        // refresh the home view
-        appEmitter.emit('updateHomeView', { user })
-      } catch (err) {
-        // we have a DB write error
-        console.error(err)
-      }
+      orders.update(order)
     } catch (err) {
-      // we have a DB read error
       console.error(err)
     }
+
+    // notify user order is ready
+    appEmitter.emit('orderReady', { user, ts: order.disambiguateTS, barcode: value, channel, team: order.team, appID: order.appID })
+
+    // refresh the home view
+    appEmitter.emit('updateHomeView', { user })
   })
 
   // Event handlers to post the order is ready to the user
